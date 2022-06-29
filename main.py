@@ -5,7 +5,7 @@
 # JSON-messenger-exporter
 # 2019 MIT License
 
-import sys, getopt, json, time, os.path
+import sys, getopt, json, time, os.path, os
 from DateFormatter import dateFormat, frenchDateFormat
 from jinja2 import Environment, FileSystemLoader
 
@@ -35,7 +35,7 @@ def loadJSONFile(file):
         @param file: path to the file
     '''
     try:
-        with open(file) as file:
+        with open(file, encoding="utf-8") as file:
             data = file.read()
     except FileNotFoundError:
         print("ERROR: You have to specify a correct path for input folder")
@@ -144,7 +144,7 @@ def loadArguments(argv):
     inputfolder = ''
     outputfile = ''
     username = 'NOBODY'
-    language = 'ERROR'
+    language = 'EN'
     saveLog = False
     stickers = ''
 
@@ -181,10 +181,22 @@ def loadArguments(argv):
 def encodingCorrection(string):
     return string.encode('latin1').decode('utf-8')
 
+def full_path(path:str, create=False)->str:
+    assert path
+    path = os.path.abspath(
+            os.path.expanduser(
+                os.path.expandvars(path)))
+    if create:
+        os.makedirs(path, exist_ok=True)
+    return path
+
 # ------------------------------ Main ------------------------------------------
 
 def main(argv):
     (inputfolder, outputfile, username, language, saveLog, stickers) = loadArguments(argv)
+
+    inputfolder = full_path(inputfolder)
+    outputfile = full_path(outputfile)
 
     # Debugging
     print("Input folder:", inputfolder)
@@ -195,7 +207,9 @@ def main(argv):
     print("")
     print("Parsing, this may take a few seconds...")
 
-    jsonData = loadJSONFile(inputfolder + "message_1.json")
+    if os.path.isdir(inputfolder):
+        inputfolder = os.path.join(inputfolder, "message_1.json")
+    jsonData = loadJSONFile(inputfolder)
 
     participants = jsonData["participants"]
     for participant in participants:
@@ -222,7 +236,7 @@ def main(argv):
     htmlRender = template.render(conversation=conversation, date=todaysTimestamp)
 
     try:
-        with open(outputfile, 'w') as output:
+        with open(outputfile, 'w', encoding="utf-8") as output:
             output.write(htmlRender)
     except FileNotFoundError:
         print("ERROR: You have to specify a correct path for output folder")
@@ -235,7 +249,7 @@ def main(argv):
             log += message.date + '\n' + message.sender + ': ' + message.content + '\n'
 
         logLocation = os.path.splitext(outputfile)[0] + '.log'
-        with open(logLocation, 'w') as logFile:
+        with open(logLocation, 'w', encoding="utf-8") as logFile:
             logFile.write(log)
 
         print("Log successfully saved in", logLocation)
