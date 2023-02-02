@@ -5,6 +5,7 @@
 # JSON-messenger-exporter
 # 2019 MIT License
 
+from datetime import datetime
 import sys, getopt, json, time, os.path, os
 from DateFormatter import dateFormat, frenchDateFormat
 from jinja2 import Environment, FileSystemLoader
@@ -26,6 +27,7 @@ class Conversation():
         self.participants = participants
         self.messages = messages
         self.username = username
+        self.generated_date = datetime.now()
 
 # ---------------------------- JSON file ---------------------------------------
 

@@ -6,10 +6,12 @@
         {%- if loop.last %}
             {{ participant.name }}.
         {%- else %}
-            {{ participant.name }}, 
+            {{ participant.name }},
         {% endif %}
         {%- endfor %}
         </p>
+        <p class="messages__message__date"><strong>Generated On:</strong> {{ conversation.generated_date }}</p>
+        <p><strong>Archive Account:</strong> {{ conversation.username }}</p>
     </div>
-    <h3 class="header__name">You are {{ conversation.username }}.</h3>
+    <!--h3 class="header__name">You are {{ conversation.username }}.</h3-->
 </header>
